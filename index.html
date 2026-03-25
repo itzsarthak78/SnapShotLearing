@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Snap Shot Learning</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+</head>
+<body class="bg-gray-50 font-sans" id="app-body">
+
+<!-- ===================== SPLASH SCREEN ===================== -->
+<div id="splash-screen" class="splash-screen">
+  <div class="splash-logo">
+    <div class="splash-icon"><i class="fa-solid fa-camera-retro"></i></div>
+    <h1 class="splash-title">Snap Shot<br/><span>Learning</span></h1>
+    <p class="splash-sub">Learn. Grow. Achieve.</p>
+  </div>
+  <div class="splash-loader"><div class="splash-bar"></div></div>
+</div>
+
+<!-- ===================== AUTH SCREENS ===================== -->
+<div id="auth-screen" class="auth-screen hidden">
+  <!-- Login -->
+  <div id="login-view" class="auth-card">
+    <div class="auth-logo"><i class="fa-solid fa-camera-retro"></i><span>Snap Shot Learning</span></div>
+    <h2>Welcome Back</h2>
+    <p class="auth-sub">Sign in to continue learning</p>
+    <div class="form-group">
+      <label>Email Address</label>
+      <div class="input-wrap"><i class="fa fa-envelope"></i><input type="email" id="login-email" placeholder="you@example.com" /></div>
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <div class="input-wrap"><i class="fa fa-lock"></i><input type="password" id="login-password" placeholder="••••••••" /></div>
+    </div>
+    <button class="btn-primary" onclick="handleLogin()">Sign In</button>
+    <p class="auth-switch">Don't have an account? <a onclick="showView('register-view')">Sign Up</a></p>
+    <p class="auth-switch"><a onclick="showView('admin-login-view')" class="text-gray-400 text-xs">Admin Login</a></p>
+  </div>
+
+  <!-- Register -->
+  <div id="register-view" class="auth-card hidden">
+    <div class="auth-logo"><i class="fa-solid fa-camera-retro"></i><span>Snap Shot Learning</span></div>
+    <h2>Create Account</h2>
+    <p class="auth-sub">Join thousands of learners</p>
+    <div class="form-group">
+      <label>Username</label>
+      <div class="input-wrap"><i class="fa fa-user"></i><input type="text" id="reg-username" placeholder="coollearner123" /></div>
+    </div>
+    <div class="form-group">
+      <label>Email Address</label>
+      <div class="input-wrap"><i class="fa fa-envelope"></i><input type="email" id="reg-email" placeholder="you@example.com" /></div>
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <div class="input-wrap"><i class="fa fa-lock"></i><input type="password" id="reg-password" placeholder="••••••••" /></div>
+    </div>
+    <button class="btn-primary" onclick="handleRegister()">Create Account</button>
+    <p class="auth-switch">Already have an account? <a onclick="showView('login-view')">Sign In</a></p>
+  </div>
+
+  <!-- Admin Login -->
+  <div id="admin-login-view" class="auth-card hidden">
+    <div class="auth-logo"><i class="fa-solid fa-shield-halved"></i><span>Admin Panel</span></div>
+    <h2>Admin Access</h2>
+    <p class="auth-sub">Restricted to administrators only</p>
+    <div class="form-group">
+      <label>Admin Email</label>
+      <div class="input-wrap"><i class="fa fa-envelope"></i><input type="email" id="admin-email" placeholder="admin@snapshot.com" /></div>
+    </div>
+    <div class="form-group">
+      <label>Password</label>
+      <div class="input-wrap"><i class="fa fa-lock"></i><input type="password" id="admin-password" placeholder="••••••••" /></div>
+    </div>
+    <button class="btn-primary btn-admin" onclick="handleAdminLogin()">Admin Sign In</button>
+    <p class="auth-switch"><a onclick="showView('login-view')">← Back to User Login</a></p>
+  </div>
+</div>
+
+<!-- ===================== MAIN APP ===================== -->
+<div id="main-app" class="hidden">
+
+  <!-- TOP BAR -->
+  <header class="top-bar" id="main-topbar">
+    <div class="top-bar-inner">
+      <div class="top-bar-logo"><i class="fa-solid fa-camera-retro"></i><span>Snap Shot</span></div>
+      <div class="top-bar-actions">
+        <button class="icon-btn" onclick="openSearch()"><i class="fa fa-search"></i></button>
+        <button class="icon-btn notif-btn" onclick="showNotifications()">
+          <i class="fa fa-bell"></i>
+          <span class="notif-dot hidden" id="notif-dot"></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- PAGES -->
+  <main class="page-content" id="page-content">
+
+    <!-- ===== HOME PAGE ===== -->
+    <div id="page-home" class="page active">
+
+      <!-- Banner -->
+      <div class="banner-section" id="banner-section">
+        <div class="banner-slide active" id="banner-main">
+          <div class="banner-placeholder">
+            <i class="fa fa-graduation-cap"></i>
+            <div>
+              <h3>Learn Without Limits</h3>
+              <p>Explore top-rated courses from expert sellers</p>
+            </div>
+          </div>
+        </div>
+        <div class="banner-dots" id="banner-dots"></div>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="search-bar-home">
+        <div class="search-input-wrap">
+          <i class="fa fa-search"></i>
+          <input type="text" id="home-search" placeholder="Search courses, topics..." oninput="filterCourses(this.value)" />
+        </div>
+      </div>
+
+      <!-- Categories -->
+      <div class="section-wrap">
+        <div class="categories-scroll" id="categories-list">
+          <button class="cat-chip active" onclick="filterByCategory('all', this)">All</button>
+          <button class="cat-chip" onclick="filterByCategory('programming', this)">Programming</button>
+          <button class="cat-chip" onclick="filterByCategory('design', this)">Design</button>
+          <button class="cat-chip" onclick="filterByCategory('business', this)">Business</button>
+          <button class="cat-chip" onclick="filterByCategory('marketing', this)">Marketing</button>
+          <button class="cat-chip" onclick="filterByCategory('photography', this)">Photography</button>
+          <button class="cat-chip" onclick="filterByCategory('music', this)">Music</button>
+        </div>
+      </div>
+
+      <!-- Popular Courses -->
+      <div class="section-wrap">
+        <div class="section-header">
+          <h2 class="section-title">🔥 Popular Courses</h2>
+          <a class="see-all" onclick="switchTab('home'); filterByCategory('all')">See All</a>
+        </div>
+        <div class="courses-hscroll" id="popular-courses-list">
+          <div class="loading-cards">
+            <div class="skeleton-card"></div><div class="skeleton-card"></div><div class="skeleton-card"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- All Courses -->
+      <div class="section-wrap" style="padding-bottom: 120px">
+        <div class="section-header">
+          <h2 class="section-title">📚 All Courses</h2>
+          <span class="course-count" id="course-count">0 courses</span>
+        </div>
+        <div class="courses-grid" id="all-courses-list">
+          <div class="loading-cards-grid">
+            <div class="skeleton-card-v"></div><div class="skeleton-card-v"></div>
+            <div class="skeleton-card-v"></div><div class="skeleton-card-v"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== MY COURSES PAGE ===== -->
+    <div id="page-mycourses" class="page hidden">
+      <div class="page-header-inner">
+        <h1>My Courses</h1>
+      </div>
+
+      <!-- Tabs -->
+      <div class="inner-tabs">
+        <button class="inner-tab active" onclick="switchInnerTab('purchased', this)">Purchased</button>
+        <button class="inner-tab" onclick="switchInnerTab('created', this)">Created</button>
+      </div>
+
+      <!-- Purchased -->
+      <div id="tab-purchased" class="inner-tab-content" style="padding-bottom:120px">
+        <div id="purchased-courses-list" class="courses-list-v"></div>
+        <div id="purchased-empty" class="empty-state hidden">
+          <i class="fa fa-book-open"></i>
+          <h3>No Purchased Courses</h3>
+          <p>Explore and buy courses to start learning</p>
+          <button class="btn-primary" onclick="switchTab('home')">Browse Courses</button>
+        </div>
+      </div>
+
+      <!-- Created -->
+      <div id="tab-created" class="inner-tab-content hidden" style="padding-bottom:120px">
+        <div id="created-courses-list" class="courses-list-v"></div>
+        <div id="created-empty" class="empty-state hidden">
+          <i class="fa fa-chalkboard-teacher"></i>
+          <h3>No Created Courses</h3>
+          <p>Start selling your knowledge today</p>
+          <button class="btn-primary" onclick="switchTab('profile')">Create a Course</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PROFILE PAGE ===== -->
+    <div id="page-profile" class="page hidden">
+      <div class="profile-hero">
+        <div class="profile-avatar" id="profile-avatar-display">
+          <span id="profile-avatar-letter">U</span>
+        </div>
+        <h2 id="profile-username-display">Username</h2>
+        <p id="profile-email-display">email@example.com</p>
+        <div class="profile-stats">
+          <div class="stat"><span id="stat-purchased">0</span><label>Purchased</label></div>
+          <div class="stat"><span id="stat-created">0</span><label>Created</label></div>
+          <div class="stat"><span id="stat-reviews">0</span><label>Reviews</label></div>
+        </div>
+      </div>
+
+      <div class="profile-body" style="padding-bottom:120px">
+        <button class="sell-btn" onclick="openCourseCreation()">
+          <i class="fa fa-plus-circle"></i> Sell Your Course
+        </button>
+
+        <!-- Account Settings -->
+        <div class="profile-section">
+          <h3 class="profile-section-title">Account</h3>
+          <div class="profile-menu">
+            <button class="profile-menu-item" onclick="openEditProfile()">
+              <i class="fa fa-user-edit"></i><span>Edit Profile</span><i class="fa fa-chevron-right ml-auto"></i>
+            </button>
+            <button class="profile-menu-item" onclick="openChangePassword()">
+              <i class="fa fa-key"></i><span>Change Password</span><i class="fa fa-chevron-right ml-auto"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Terms & Conditions -->
+        <div class="profile-section">
+          <h3 class="profile-section-title">Legal</h3>
+          <div class="terms-card">
+            <h4><i class="fa fa-file-contract"></i> Terms & Conditions</h4>
+            <ul class="terms-list">
+              <li><i class="fa fa-check-circle"></i> Users must not upload copyrighted content</li>
+              <li><i class="fa fa-check-circle"></i> Courses must be original and educational</li>
+              <li><i class="fa fa-check-circle"></i> Platform takes no responsibility for misuse</li>
+              <li><i class="fa fa-check-circle"></i> Payments are non-refundable unless stated</li>
+              <li><i class="fa fa-check-circle"></i> Admin has right to remove content/users</li>
+              <li><i class="fa fa-check-circle"></i> Users must follow community guidelines</li>
+            </ul>
+          </div>
+        </div>
+
+        <button class="btn-logout" onclick="handleLogout()">
+          <i class="fa fa-sign-out-alt"></i> Sign Out
+        </button>
+      </div>
+    </div>
+
+    <!-- ===== HELP PAGE ===== -->
+    <div id="page-help" class="page hidden">
+      <div class="page-header-inner">
+        <h1>Help & Support</h1>
+        <p>We typically respond within 24 hours</p>
+      </div>
+      <div class="help-body" style="padding-bottom:120px">
+        <!-- FAQ -->
+        <div class="faq-section">
+          <h3>Frequently Asked Questions</h3>
+          <div class="faq-item" onclick="toggleFaq(this)">
+            <div class="faq-q"><span>How do I purchase a course?</span><i class="fa fa-plus"></i></div>
+            <div class="faq-a">Browse courses, click on any course, and tap "Buy Now". Complete payment via Razorpay to get instant access.</div>
+          </div>
+          <div class="faq-item" onclick="toggleFaq(this)">
+            <div class="faq-q"><span>How do I become a seller?</span><i class="fa fa-plus"></i></div>
+            <div class="faq-a">Go to Profile → Sell Your Course. Create a course and submit for admin approval. Once approved, your course goes live.</div>
+          </div>
+          <div class="faq-item" onclick="toggleFaq(this)">
+            <div class="faq-q"><span>Are payments refundable?</span><i class="fa fa-plus"></i></div>
+            <div class="faq-a">Payments are non-refundable unless stated in the course description or a technical issue prevents access.</div>
+          </div>
+          <div class="faq-item" onclick="toggleFaq(this)">
+            <div class="faq-q"><span>How long does course approval take?</span><i class="fa fa-plus"></i></div>
+            <div class="faq-a">Admin reviews within 24-48 hours. You'll receive a notification once your course is approved or if it needs changes.</div>
+          </div>
+        </div>
+
+        <!-- Contact Form -->
+        <div class="help-form-card">
+          <h3>Send a Message</h3>
+          <p>Have a specific issue? Write to us directly.</p>
+          <div class="form-group">
+            <label>Subject</label>
+            <div class="input-wrap"><i class="fa fa-tag"></i><input type="text" id="help-subject" placeholder="What is this about?" /></div>
+          </div>
+          <div class="form-group">
+            <label>Message</label>
+            <textarea id="help-message" placeholder="Describe your issue or question in detail..." rows="5"></textarea>
+          </div>
+          <button class="btn-primary" onclick="submitHelpMessage()">
+            <i class="fa fa-paper-plane"></i> Send Message
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </main><!-- end page-content -->
+
+  <!-- BOTTOM NAVIGATION -->
+  <nav class="bottom-nav" id="bottom-nav">
+    <button class="nav-tab active" id="tab-home" onclick="switchTab('home')">
+      <i class="fa fa-home"></i><span>Home</span>
+    </button>
+    <button class="nav-tab" id="tab-mycourses" onclick="switchTab('mycourses')">
+      <i class="fa fa-book"></i><span>My Courses</span>
+    </button>
+    <button class="nav-tab" id="tab-profile" onclick="switchTab('profile')">
+      <i class="fa fa-user"></i><span>Profile</span>
+    </button>
+    <button class="nav-tab" id="tab-help" onclick="switchTab('help')">
+      <i class="fa fa-question-circle"></i><span>Help</span>
+    </button>
+  </nav>
+
+</div><!-- end main-app -->
+
+<!-- ===================== ADMIN PANEL ===================== -->
+<div id="admin-panel" class="hidden">
+  <div class="admin-sidebar" id="admin-sidebar">
+    <div class="admin-logo"><i class="fa-solid fa-camera-retro"></i><span>SSL Admin</span></div>
+    <nav class="admin-nav">
+      <button class="admin-nav-item active" onclick="adminSwitchTab('dashboard', this)"><i class="fa fa-tachometer-alt"></i><span>Dashboard</span></button>
+      <button class="admin-nav-item" onclick="adminSwitchTab('courses', this)"><i class="fa fa-book"></i><span>All Courses</span></button>
+      <button class="admin-nav-item" onclick="adminSwitchTab('approvals', this)"><i class="fa fa-clock"></i><span>Approvals</span><span class="badge" id="approval-badge">0</span></button>
+      <button class="admin-nav-item" onclick="adminSwitchTab('users', this)"><i class="fa fa-users"></i><span>Users</span></button>
+      <button class="admin-nav-item" onclick="adminSwitchTab('messages', this)"><i class="fa fa-envelope"></i><span>Messages</span><span class="badge" id="msg-badge">0</span></button>
+      <button class="admin-nav-item" onclick="adminSwitchTab('broadcast', this)"><i class="fa fa-bullhorn"></i><span>Broadcast</span></button>
+      <button class="admin-nav-item" onclick="adminSwitchTab('banners', this)"><i class="fa fa-image"></i><span>Banners</span></button>
+    </nav>
+    <button class="admin-logout" onclick="handleAdminLogout()"><i class="fa fa-sign-out-alt"></i><span>Logout</span></button>
+  </div>
+
+  <div class="admin-main">
+    <!-- Top bar -->
+    <div class="admin-topbar">
+      <button class="admin-menu-btn" onclick="toggleAdminSidebar()"><i class="fa fa-bars"></i></button>
+      <h1 id="admin-page-title">Dashboard</h1>
+      <div class="admin-user-info"><i class="fa fa-shield-alt"></i><span>Admin</span></div>
+    </div>
+
+    <!-- Admin Pages -->
+    <div class="admin-content" id="admin-content">
+
+      <!-- Dashboard -->
+      <div id="admin-dashboard" class="admin-page active">
+        <div class="admin-stats-grid">
+          <div class="admin-stat-card blue"><i class="fa fa-users"></i><div><span id="stat-total-users">0</span><label>Total Users</label></div></div>
+          <div class="admin-stat-card green"><i class="fa fa-book"></i><div><span id="stat-total-courses">0</span><label>Total Courses</label></div></div>
+          <div class="admin-stat-card orange"><i class="fa fa-clock"></i><div><span id="stat-pending">0</span><label>Pending</label></div></div>
+          <div class="admin-stat-card purple"><i class="fa fa-envelope"></i><div><span id="stat-messages">0</span><label>Messages</label></div></div>
+        </div>
+        <div class="admin-recent">
+          <h3>Recent Activity</h3>
+          <div id="recent-activity-list" class="activity-list"></div>
+        </div>
+      </div>
+
+      <!-- All Courses -->
+      <div id="admin-courses" class="admin-page hidden">
+        <div class="admin-page-header">
+          <h2>All Courses</h2>
+          <div class="admin-search"><input type="text" placeholder="Search courses..." oninput="adminSearchCourses(this.value)" /><i class="fa fa-search"></i></div>
+        </div>
+        <div id="admin-courses-list" class="admin-table-wrap"></div>
+      </div>
+
+      <!-- Approvals -->
+      <div id="admin-approvals" class="admin-page hidden">
+        <div class="admin-page-header"><h2>Course Approvals</h2></div>
+        <div id="admin-approvals-list" class="approvals-list"></div>
+      </div>
+
+      <!-- Users -->
+      <div id="admin-users" class="admin-page hidden">
+        <div class="admin-page-header">
+          <h2>User Management</h2>
+          <div class="admin-search"><input type="text" placeholder="Search users..." oninput="adminSearchUsers(this.value)" /><i class="fa fa-search"></i></div>
+        </div>
+        <div id="admin-users-list" class="admin-table-wrap"></div>
+      </div>
+
+      <!-- Messages -->
+      <div id="admin-messages" class="admin-page hidden">
+        <div class="admin-page-header"><h2>Help Messages</h2></div>
+        <div id="admin-messages-list" class="messages-list"></div>
+      </div>
+
+      <!-- Broadcast -->
+      <div id="admin-broadcast" class="admin-page hidden">
+        <div class="admin-page-header"><h2>Broadcast Message</h2></div>
+        <div class="broadcast-form">
+          <div class="form-group">
+            <label>Target Users</label>
+            <select id="broadcast-target">
+              <option value="all">All Users</option>
+              <option value="specific">Specific User</option>
+            </select>
+          </div>
+          <div class="form-group" id="specific-user-wrap" style="display:none">
+            <label>Username or Email</label>
+            <div class="input-wrap"><i class="fa fa-user"></i><input type="text" id="broadcast-user" placeholder="Enter username or email" /></div>
+          </div>
+          <div class="form-group">
+            <label>Message</label>
+            <textarea id="broadcast-message" rows="4" placeholder="Type your broadcast message..."></textarea>
+          </div>
+          <button class="btn-primary" onclick="sendBroadcast()"><i class="fa fa-bullhorn"></i> Send Broadcast</button>
+        </div>
+      </div>
+
+      <!-- Banners -->
+      <div id="admin-banners" class="admin-page hidden">
+        <div class="admin-page-header"><h2>Banner Management</h2></div>
+        <div class="banner-upload-form">
+          <div class="upload-zone" id="banner-upload-zone" onclick="document.getElementById('banner-file-input').click()">
+            <i class="fa fa-cloud-upload-alt"></i>
+            <p>Click to upload banner image</p>
+            <span>Recommended: 800×300px, JPG/PNG</span>
+            <input type="file" id="banner-file-input" accept="image/*" hidden onchange="previewBanner(this)" />
+          </div>
+          <div id="banner-preview-wrap" class="hidden">
+            <img id="banner-preview-img" />
+            <div class="form-group"><label>Banner Title</label><input type="text" id="banner-title-input" placeholder="e.g. Summer Sale – 50% Off!" /></div>
+            <div class="form-group"><label>Link URL (optional)</label><input type="text" id="banner-link-input" placeholder="https://..." /></div>
+            <button class="btn-primary" onclick="uploadBanner()"><i class="fa fa-upload"></i> Publish Banner</button>
+          </div>
+          <div id="banners-existing" class="banners-grid"></div>
+        </div>
+      </div>
+
+    </div><!-- end admin-content -->
+  </div><!-- end admin-main -->
+</div><!-- end admin-panel -->
+
+<!-- ===================== MODALS & OVERLAYS ===================== -->
+
+<!-- Course Detail Modal -->
+<div id="course-detail-modal" class="modal-overlay hidden">
+  <div class="modal-sheet">
+    <div class="modal-drag-handle"></div>
+    <button class="modal-close" onclick="closeModal('course-detail-modal')"><i class="fa fa-times"></i></button>
+    <div id="course-detail-content"></div>
+  </div>
+</div>
+
+<!-- Course Player Modal -->
+<div id="course-player-modal" class="modal-overlay hidden">
+  <div class="modal-fullscreen">
+    <div class="player-topbar">
+      <button onclick="closeModal('course-player-modal')"><i class="fa fa-arrow-left"></i></button>
+      <h3 id="player-course-title">Course Title</h3>
+      <button onclick="togglePlaylist()"><i class="fa fa-list"></i></button>
+    </div>
+    <div class="player-main">
+      <div class="video-container">
+        <video id="main-video" controls></video>
+        <div class="speed-controls">
+          <span>Speed:</span>
+          <button onclick="setSpeed(0.5)" class="speed-btn">0.5x</button>
+          <button onclick="setSpeed(1)" class="speed-btn active">1x</button>
+          <button onclick="setSpeed(1.5)" class="speed-btn">1.5x</button>
+          <button onclick="setSpeed(2)" class="speed-btn">2x</button>
+        </div>
+      </div>
+      <div class="playlist-panel" id="playlist-panel">
+        <h4>Course Content</h4>
+        <div id="video-playlist" class="video-list"></div>
+      </div>
+    </div>
+    <div class="player-reviews">
+      <h4>Reviews</h4>
+      <div id="reviews-list"></div>
+      <div class="add-review">
+        <div class="star-input" id="star-input">
+          <i class="fa fa-star" onclick="setRating(1)"></i>
+          <i class="fa fa-star" onclick="setRating(2)"></i>
+          <i class="fa fa-star" onclick="setRating(3)"></i>
+          <i class="fa fa-star" onclick="setRating(4)"></i>
+          <i class="fa fa-star" onclick="setRating(5)"></i>
+        </div>
+        <textarea id="review-text" placeholder="Write your review..." rows="2"></textarea>
+        <button class="btn-primary" onclick="submitReview()">Submit Review</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Course Creation Modal -->
+<div id="course-create-modal" class="modal-overlay hidden">
+  <div class="modal-sheet tall">
+    <div class="modal-drag-handle"></div>
+    <button class="modal-close" onclick="closeModal('course-create-modal')"><i class="fa fa-times"></i></button>
+    <h2 class="modal-title">Create New Course</h2>
+    <div class="form-group">
+      <label>Course Name *</label>
+      <div class="input-wrap"><i class="fa fa-graduation-cap"></i><input type="text" id="course-name" placeholder="e.g. Complete Python Bootcamp" /></div>
+    </div>
+    <div class="form-group">
+      <label>Category</label>
+      <select id="course-category">
+        <option value="programming">Programming</option>
+        <option value="design">Design</option>
+        <option value="business">Business</option>
+        <option value="marketing">Marketing</option>
+        <option value="photography">Photography</option>
+        <option value="music">Music</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Price (₹) *</label>
+      <div class="input-wrap"><i class="fa fa-rupee-sign"></i><input type="number" id="course-price" placeholder="499" min="0" /></div>
+    </div>
+    <div class="form-group">
+      <label>Course Thumbnail *</label>
+      <div class="upload-zone small" onclick="document.getElementById('thumb-input').click()">
+        <img id="thumb-preview" class="hidden" />
+        <div id="thumb-placeholder"><i class="fa fa-image"></i><span>Upload Thumbnail</span></div>
+        <input type="file" id="thumb-input" accept="image/*" hidden onchange="previewThumb(this)" />
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Description *</label>
+      <textarea id="course-desc" rows="4" placeholder="What will students learn? What is covered?"></textarea>
+    </div>
+    <div class="form-group">
+      <label>What You'll Learn (comma separated)</label>
+      <div class="input-wrap"><i class="fa fa-list-check"></i><input type="text" id="course-outcomes" placeholder="Python basics, OOP, APIs..." /></div>
+    </div>
+    <button class="btn-primary" onclick="submitCourse()"><i class="fa fa-check"></i> Submit for Review</button>
+  </div>
+</div>
+
+<!-- Add Video Modal -->
+<div id="add-video-modal" class="modal-overlay hidden">
+  <div class="modal-sheet">
+    <div class="modal-drag-handle"></div>
+    <button class="modal-close" onclick="closeModal('add-video-modal')"><i class="fa fa-times"></i></button>
+    <h2 class="modal-title">Add Course Video</h2>
+    <div class="form-group">
+      <label>Video Title *</label>
+      <div class="input-wrap"><i class="fa fa-video"></i><input type="text" id="video-title" placeholder="e.g. Introduction to Variables" /></div>
+    </div>
+    <div class="form-group">
+      <label>Video File *</label>
+      <div class="upload-zone small" onclick="document.getElementById('video-input').click()">
+        <div id="video-placeholder"><i class="fa fa-film"></i><span>Upload Video File</span><small>MP4, WebM, MOV</small></div>
+        <div id="video-selected" class="hidden"><i class="fa fa-check-circle" style="color:var(--green)"></i><span id="video-filename"></span></div>
+        <input type="file" id="video-input" accept="video/*" hidden onchange="selectVideo(this)" />
+      </div>
+    </div>
+    <div id="video-list-preview" class="video-preview-list"></div>
+    <button class="btn-primary" onclick="addVideo()"><i class="fa fa-plus"></i> Add Video</button>
+    <button class="btn-secondary" onclick="finishCourseUpload()" style="margin-top:8px"><i class="fa fa-check"></i> Done – Finish Upload</button>
+  </div>
+</div>
+
+<!-- Edit Course Modal -->
+<div id="edit-course-modal" class="modal-overlay hidden">
+  <div class="modal-sheet tall">
+    <div class="modal-drag-handle"></div>
+    <button class="modal-close" onclick="closeModal('edit-course-modal')"><i class="fa fa-times"></i></button>
+    <h2 class="modal-title">Edit Course</h2>
+    <input type="hidden" id="edit-course-id" />
+    <div class="form-group"><label>Course Name</label><div class="input-wrap"><i class="fa fa-graduation-cap"></i><input type="text" id="edit-course-name" /></div></div>
+    <div class="form-group"><label>Price (₹)</label><div class="input-wrap"><i class="fa fa-rupee-sign"></i><input type="number" id="edit-course-price" /></div></div>
+    <div class="form-group"><label>Description</label><textarea id="edit-course-desc" rows="4"></textarea></div>
+    <div class="form-group">
+      <label>New Thumbnail (optional)</label>
+      <div class="upload-zone small" onclick="document.getElementById('edit-thumb-input').click()">
+        <img id="edit-thumb-preview" class="hidden" />
+        <div id="edit-thumb-placeholder"><i class="fa fa-image"></i><span>Change Thumbnail</span></div>
+        <input type="file" id="edit-thumb-input" accept="image/*" hidden onchange="previewEditThumb(this)" />
+      </div>
+    </div>
+    <button class="btn-primary" onclick="saveEditCourse()"><i class="fa fa-save"></i> Save Changes</button>
+  </div>
+</div>
+
+<!-- Notification Popup -->
+<div id="notif-popup" class="notif-popup hidden">
+  <div class="notif-header"><h4>Notifications</h4><button onclick="closeNotif()"><i class="fa fa-times"></i></button></div>
+  <div id="notif-list"></div>
+</div>
+
+<!-- Broadcast Popup (user-facing) -->
+<div id="broadcast-popup" class="broadcast-popup hidden">
+  <div class="broadcast-inner">
+    <div class="broadcast-icon"><i class="fa fa-bullhorn"></i></div>
+    <div class="broadcast-body">
+      <h4>Message from Admin</h4>
+      <p id="broadcast-text"></p>
+    </div>
+    <button onclick="closeBroadcast()"><i class="fa fa-times"></i></button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast hidden"></div>
+
+<!-- Floating Action Button -->
+<button id="fab-btn" class="fab-btn hidden" onclick="openAddVideo()">
+  <i class="fa fa-plus"></i>
+</button>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay" class="loading-overlay hidden">
+  <div class="loading-spinner"><div></div><div></div><div></div></div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
